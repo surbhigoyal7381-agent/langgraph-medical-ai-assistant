@@ -1,1 +1,27 @@
+# Node
+node_modules/
+frontend/node_modules/
+
+# Next.js
+.next/
+
+# Python
+venv/
+backend/venv/
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+.env.*
+
+# Editor
+.vscode/
+
+# OS
+.DS_Store
+
+# Locks
+package-lock.json
+yarn.lock
 .env

@@ -9,17 +9,35 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from engine import LangGraphEngine
+from config import settings
 
 app = FastAPI(title="LangGraph Medical Assistant API")
 
+# Hardened CORS configuration driven by environment variables.
+# - In development (ENV != 'production') we allow localhost origins for convenience.
+# - In production, set ALLOWED_ORIGINS to a comma-separated list of allowed origins.
+if settings.ENV == 'production':
+    # ensure safe configuration
+    settings.require_production_safe()
+    allow_origins = settings.ALLOWED_ORIGINS
+else:
+    # allow common local dev hosts; keep explicit list rather than '*'
+    allow_origins = [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3001',
+        'http://localhost:3004',
+        'http://127.0.0.1:3004',
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    # During local development allow common localhost ports; allow '*' if you
-    # prefer to accept requests from any origin. Narrow this for production.
-    allow_origins=["*"],
+    allow_origins=allow_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+    expose_headers=["Content-Length"],
 )
 
 engine = LangGraphEngine()

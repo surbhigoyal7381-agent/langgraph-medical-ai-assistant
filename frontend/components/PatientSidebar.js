@@ -6,17 +6,20 @@ export default function PatientSidebar({patientId}){
   useEffect(()=>{
     if(!patientId) return
     let mounted = true
+    let interval = 2000
+    let iv = null
+
     const fetchProfile = ()=>{
-      fetch(`http://localhost:8000/patient/${patientId}`)
-        .then(r=>r.json())
-        .then(d=>{ if(mounted) setProfile(d.profile) })
-        .catch(()=>{ if(mounted) setProfile(null) })
+      fetch(`http://127.0.0.1:8000/patient/${patientId}`)
+        .then(r=>{ if(!r.ok) throw new Error('bad status') ; return r.json() })
+        .then(d=>{ if(mounted){ setProfile(d.profile); interval = 2000 } })
+        .catch(()=>{ if(mounted){ /* exponential backoff on failure */ interval = Math.min(30000, interval * 1.5) } })
+        .finally(()=>{ if(mounted){ clearInterval(iv); iv = setInterval(fetchProfile, interval) } })
     }
 
     fetchProfile()
-    // poll for updates every 2 seconds to show real-time profile changes
-    const iv = setInterval(fetchProfile,2000)
-    return ()=>{ mounted=false; clearInterval(iv) }
+    // initial poll interval set above; iv will be managed in fetchProfile finalizer
+    return ()=>{ mounted=false; if(iv) clearInterval(iv) }
   },[patientId])
 
   return (

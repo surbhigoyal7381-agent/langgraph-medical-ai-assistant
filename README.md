@@ -72,6 +72,23 @@ Assistant: We’ve detected an emergency. Please contact emergency services imme
 - <b>Python</b> - Core language
 - <b>InMemoryStore</b> - Persistent patient data storage
 
+### Production configuration
+
+Before running the backend in production, set the following environment variables to harden CORS:
+
+- `ENV=production`
+- `ALLOWED_ORIGINS` — a comma-separated list of allowed origins, e.g. `https://app.example.com`
+
+The backend will refuse to start in production if `ALLOWED_ORIGINS` is not set to a non-empty value.
+
+Example (PowerShell):
+
+```powershell
+$env:ENV = 'production'
+$env:ALLOWED_ORIGINS = 'https://app.example.com'
+python -m uvicorn backend.app:app --port 8000
+```
+
 ## Contributors
 👨‍💻 Taher Fattahi
 📧 Contact: taherfattahi11@gmail.com
